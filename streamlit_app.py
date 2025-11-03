@@ -1,18 +1,16 @@
 import os
 import re
-import fitz  
+import fitz
 import difflib
 import streamlit as st
 import google.generativeai as genai
 import time
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
-from dotenv import load_dotenv
 
 # -------------------------------
 # CONFIG API
 # -------------------------------
-load_dotenv()
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY", "AIzaSyBlaAYDZu2yhYlaShDnZoMoCkBA0lSGoaE"))
+genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
 generation_config = {
     "temperature": 0.35,
