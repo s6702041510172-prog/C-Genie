@@ -10,7 +10,10 @@ from google.generativeai.types import HarmCategory, HarmBlockThreshold
 # -------------------------------
 # CONFIG API
 # -------------------------------
-genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+# 👇 ใส่ API Key ของคุณตรงนี้
+GOOGLE_API_KEY = "AIzaSyBlaAYDZu2yhYlaShDnZoMoCkBA0lSGoaE"  
+
+genai.configure(api_key=GOOGLE_API_KEY)
 
 generation_config = {
     "temperature": 0.35,
@@ -50,7 +53,6 @@ INSTRUCTION FOR RESPONSE:
 - หากมีตัวอย่างโค้ด ให้แสดงในรูปแบบ Markdown:
   ```c
   // ตัวอย่างโค้ด
-
 """
 
 model = genai.GenerativeModel(
@@ -86,20 +88,14 @@ def split_chunks(text, size=1200, overlap=200):
 
 
 def search_chunks(query, chunks, top_k=8):
-    """
-    ค้นหา chunk ที่ใกล้เคียงกับคำถาม
-    พร้อม boost คำสำคัญ เช่น 'ภาษา C', 'ฟังก์ชัน', 'ตัวแปร', 'โครงสร้าง'
-    """
     boost_keywords = ["ภาษา C", "ฟังก์ชัน", "ตัวแปร", "โครงสร้าง", "พัฒนา", "เกิดขึ้น", "ค.ศ.", "Ritchie", "BCPL"]
     scored = []
-
     for c in chunks:
         score = difflib.SequenceMatcher(None, query.lower(), c.lower()).ratio()
         for kw in boost_keywords:
             if kw in c:
-                score += 0.08  # เพิ่มน้ำหนักหากเจอคำสำคัญ
+                score += 0.08
         scored.append((score, c))
-
     scored.sort(reverse=True)
     return [c for _, c in scored[:top_k]]
 
@@ -111,7 +107,6 @@ def generate_response(prompt, file_content, user_prompt_addon, chat_key):
     related = search_chunks(prompt, chunks, top_k=8)
     context = "\n\n".join(related)
 
-    # รวมประวัติห้อง
     history_text = ""
     for msg in st.session_state["chats"][chat_key]:
         role = "ผู้ใช้" if msg["role"] == "user" else "C-Genie"
@@ -130,7 +125,6 @@ def generate_response(prompt, file_content, user_prompt_addon, chat_key):
 คำสั่งเพิ่มเติม:
 {user_prompt_addon}
 """
-
     response = model.generate_content(query)
     return response.text.strip() if response and response.candidates and response.candidates[0].content.parts else "ข้อมูลนี้ยังไม่มีในเอกสารค่ะ"
 
